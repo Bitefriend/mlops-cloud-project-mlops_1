@@ -2,10 +2,10 @@
 
 ## 1. Branch 전략
 
-### 1.1 Branch 종류류
+### 1.1 Branch 종류
 
 ### 1. **`main` 브랜치**
-   - **라벨**: `stable`
+   - **라벨**: `main`
    - **설명**: `main` 브랜치는 항상 배포 가능한 상태여야 하므로, 이 브랜치는 최종적인 배포용 코드를 포함합니다.
    - **작업**: `main` 브랜치에는 직접 작업하지 않고, 항상 다른 브랜치에서 merge된 후 최신 상태를 유지합니다.
 
@@ -87,3 +87,16 @@
 4. 생성한 브랜치에 푸시합니다:  
    `git push origin feature-name`
 5. Pull Request를 생성합니다.
+
+## 당겨 올 때
+
+1. upstream set-up
+team repo를 upstream 이름으로 remote에 저장합니다. 
+
+`git remote add upstream https://github.com/AIBootcamp13/mlops-cloud-project-mlops_1.git`
+
+upstream 이름의 remote 저장소에는 push를 금지합니다.
+
+`git remote set-url --push upstream no-push`
+
+2. `git pull upstream main`
