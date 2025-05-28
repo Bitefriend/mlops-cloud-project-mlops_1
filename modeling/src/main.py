@@ -11,6 +11,7 @@ from dotenv import load_dotenv
 import pandas as pd
 import numpy as np
 import torch
+import fire
 
 from modeling.src.inference.inference import (
     init_model, inference, temperature_to_df, write_db, PM_to_df, get_scalers, get_outputs
@@ -66,14 +67,15 @@ def run_inference(batch_size=64):
     run_inference_temperature(model_temperature, scaler_temperature, outputs_temperature, device)
     run_inference_PM(model_PM, scaler_PM, outputs_PM, device)
 
-
-if __name__ == '__main__':
-
+def main(run_mode):
     load_dotenv()
 
-    # run_inference()
+    if run_mode == "train":
+        run_train()
+    elif run_mode == "inference":
+        run_inference()
 
-    run_train()
-
+if __name__ == '__main__':
+    fire.Fire(main)
 
     
