@@ -48,14 +48,14 @@ def init_model():
     
     model_temperature_path = "../models/lstm_temperature.pth"
 
-    model_temperature_checkpoint = torch.load(model_temperature_path, map_location=torch.device('cpu'))
+    model_temperature_checkpoint = torch.load(model_temperature_path, map_location=torch.device('cpu'), weights_only=True)
 
     model_temperature = MultiOutputLSTM(outputs_temperature)
     model_temperature.load_state_dict(model_temperature_checkpoint)
 
     model_PM_path = "../models/lstm_PM.pth"
 
-    model_PM_checkpoint = torch.load(model_PM_path, map_location=torch.device('cpu'))
+    model_PM_checkpoint = torch.load(model_PM_path, map_location=torch.device('cpu'), weights_only=True)
 
     model_PM = MultiOutputLSTM(outputs_PM)
     model_PM.load_state_dict(model_PM_checkpoint)
@@ -152,6 +152,8 @@ def run_inference_PM(model, scaler, outputs, device):
 
 def run_inference(batch_size=64):
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    print("Using device:", device)
+    
     model_temperature, model_PM = init_model()
     scaler_temperature, scaler_PM = get_scalers()
     outputs_temperature, outputs_PM = get_outputs()
