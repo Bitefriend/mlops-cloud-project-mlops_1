@@ -21,25 +21,25 @@ from modeling.src.postprocess.postprocess import write_db, read_db
 
 WINDOW_SIZE = 30
 
-def run_train_temperature(outputs_temperature, scaler_temperature):
-    data = pd.read_csv('../mlops_data/TA_data.csv')
+def run_train_temperature(data_root_path, model_root_path, outputs_temperature, scaler_temperature):
+    data = pd.read_csv(os.path.join(data_root_path, 'TA_data.csv'))
 
-    train(data, outputs_temperature, scaler_temperature, "Temperature")
+    train(model_root_path, data, outputs_temperature, scaler_temperature, "temperature")
 
-def run_train_PM(outputs_PM, scaler_PM):
-    data = pd.read_csv('../mlops_data/PM10_data.csv')
+def run_train_PM(data_root_path, model_root_path, outputs_PM, scaler_PM):
+    data = pd.read_csv(os.path.join(data_root_path, 'PM10_data.csv'))
 
-    train(data, outputs_PM, scaler_PM, "PM")
+    train(model_root_path, data, outputs_PM, scaler_PM, "PM")
 
-def run_train():
+def run_train(data_root_path, model_root_path):
 
-    scaler_temperature, scaler_PM = get_scalers()
+    scaler_temperature, scaler_PM = get_scalers(data_root_path)
     outputs_temperature, outputs_PM = get_outputs()
 
-    run_train_temperature(outputs_temperature, scaler_temperature)
-    run_train_PM(outputs_PM, scaler_PM)
+    run_train_temperature(data_root_path, model_root_path, outputs_temperature, scaler_temperature)
+    run_train_PM(data_root_path, model_root_path, outputs_PM, scaler_PM)
 
-def run_inference_temperature(model, scaler, outputs, device):
+def run_inference_temperature(data_root_path, model_root_path, model, scaler, outputs, device):
     fake_test_data = np.random.normal(loc=15, scale=3, size=(WINDOW_SIZE, len(outputs)))
 
     results = inference(model, fake_test_data, scaler, outputs, device)    
@@ -47,7 +47,7 @@ def run_inference_temperature(model, scaler, outputs, device):
     print(temperature_df)
     write_db(temperature_df, "mlops", "temperature")
 
-def run_inference_PM(model, scaler, outputs, device):
+def run_inference_PM(data_root_path, model_root_path, model, scaler, outputs, device):
     fake_test_data = np.random.normal(loc=15, scale=3, size=(WINDOW_SIZE, len(outputs)))
 
     results = inference(model, fake_test_data, scaler, outputs, device)    
@@ -55,24 +55,24 @@ def run_inference_PM(model, scaler, outputs, device):
     print(PM_df)
     write_db(PM_df, "mlops", "PM")
 
-def run_inference(batch_size=64):
+def run_inference(data_root_path, model_root_path, batch_size=64):
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     print("Using device:", device)
     
-    model_temperature, model_PM = init_model()
-    scaler_temperature, scaler_PM = get_scalers()
+    model_temperature, model_PM = init_model(model_root_path)
+    scaler_temperature, scaler_PM = get_scalers(data_root_path)
     outputs_temperature, outputs_PM = get_outputs()
 
-    run_inference_temperature(model_temperature, scaler_temperature, outputs_temperature, device)
-    run_inference_PM(model_PM, scaler_PM, outputs_PM, device)
+    run_inference_temperature(data_root_path, model_root_path, model_temperature, scaler_temperature, outputs_temperature, device)
+    run_inference_PM(data_root_path, model_root_path, model_PM, scaler_PM, outputs_PM, device)
 
-def main(run_mode):
+def main(run_mode, data_root_path, model_root_path):
     load_dotenv()
 
     if run_mode == "train":
-        run_train()
+        run_train(data_root_path, model_root_path)
     elif run_mode == "inference":
-        run_inference()
+        run_inference(data_root_path, model_root_path)
 
 if __name__ == '__main__':
     fire.Fire(main)

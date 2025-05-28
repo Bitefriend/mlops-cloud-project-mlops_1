@@ -1,3 +1,4 @@
+import os
 
 import pandas as pd
 import numpy as np
@@ -10,8 +11,8 @@ import boto3
 from botocore.exceptions import NoCredentialsError
 from model.lstm import MultiOutputLSTM
     
-def model_save(model, model_name):
-    model_path = f"../models/{model_name}.pth"
+def model_save(model, model_root_path, model_name):
+    model_path = os.path.join(model_root_path, f"lstm_{model_name}.pth")
     torch.save(model.state_dict(), model_path)
 
     try:
@@ -22,15 +23,13 @@ def model_save(model, model_name):
     except NoCredentialsError:
         print("Failed S3 Successes")
 
-def train(data, outputs, scaler, model_name):
+def train(model_root_path, data, outputs, scaler, model_name):
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     print("Using device:", device)
 
-    df = data # pd.read_csv('../mlops_data/TA_data.csv')
+    df = data
 
     WINDOW_SIZE = 30
-
-    # outputs = ["TA_AVG", "TA_MAX", "TA_MIN"]
 
     features = df[outputs].values
     scaler = MinMaxScaler()
@@ -89,4 +88,4 @@ def train(data, outputs, scaler, model_name):
 
         print(f"[{epoch+1}/{epochs}] Train Loss: {train_loss:.4f}, Val Loss: {val_loss:.4f}")
 
-    model_save(model, model_name)
+    model_save(model, model_root_path, model_name)
