@@ -15,8 +15,29 @@ import torch
 from modeling.src.inference.inference import (
     init_model, inference, temperature_to_df, write_db, PM_to_df, get_scalers, get_outputs
 )
+from modeling.src.train.train import (
+    train
+)
 
 WINDOW_SIZE = 30
+
+def run_train_temperature(outputs_temperature, scaler_temperature):
+    data = pd.read_csv('../mlops_data/TA_data.csv')
+
+    train(data, outputs_temperature, scaler_temperature, "Temperature")
+
+def run_train_PM(outputs_PM, scaler_PM):
+    data = pd.read_csv('../mlops_data/PM10_data.csv')
+
+    train(data, outputs_PM, scaler_PM, "PM")
+
+def run_train():
+
+    scaler_temperature, scaler_PM = get_scalers()
+    outputs_temperature, outputs_PM = get_outputs()
+
+    run_train_temperature(outputs_temperature, scaler_temperature)
+    run_train_PM(outputs_PM, scaler_PM)
 
 def run_inference_temperature(model, scaler, outputs, device):
     fake_test_data = np.random.normal(loc=15, scale=3, size=(WINDOW_SIZE, len(outputs)))
@@ -50,4 +71,9 @@ if __name__ == '__main__':
 
     load_dotenv()
 
-    run_inference()
+    # run_inference()
+
+    run_train()
+
+
+    

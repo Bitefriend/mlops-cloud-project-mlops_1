@@ -1,4 +1,4 @@
-from dotenv import load_dotenv
+
 import pandas as pd
 import numpy as np
 import torch
@@ -10,30 +10,27 @@ import boto3
 from botocore.exceptions import NoCredentialsError
 from model.lstm import MultiOutputLSTM
     
-def model_save(model):
-    model_path = "../models/lstm_temperature.pth"
+def model_save(model, model_name):
+    model_path = f"../models/{model_name}.pth"
     torch.save(model.state_dict(), model_path)
 
     try:
         s3 = boto3.client('s3')
         s3.list_buckets()
         print("Connect S3 Successes")
-        s3.upload_file(model_path, "mlops-study-web-lmw", "models/model_v1.pth")
+        s3.upload_file(model_path, "mlops-study-web-lmw", f"models/model_{model_name}_v1.pth")
     except NoCredentialsError:
         print("Failed S3 Successes")
-    
 
-if __name__ == "__main__":
-    load_dotenv()
-
+def train(data, outputs, scaler, model_name):
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     print("Using device:", device)
 
-    df = pd.read_csv('../mlops_data/TA_data.csv')
+    df = data # pd.read_csv('../mlops_data/TA_data.csv')
 
     WINDOW_SIZE = 30
 
-    outputs = ["TA_AVG", "TA_MAX", "TA_MIN"]
+    # outputs = ["TA_AVG", "TA_MAX", "TA_MIN"]
 
     features = df[outputs].values
     scaler = MinMaxScaler()
@@ -92,4 +89,4 @@ if __name__ == "__main__":
 
         print(f"[{epoch+1}/{epochs}] Train Loss: {train_loss:.4f}, Val Loss: {val_loss:.4f}")
 
-    model_save(model)
+    model_save(model, model_name)
