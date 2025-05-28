@@ -8,16 +8,7 @@ from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import MinMaxScaler
 import boto3
 from botocore.exceptions import NoCredentialsError
-
-class MultiOutputLSTM(nn.Module):
-    def __init__(self, input_size=3, hidden_size=64, num_layers=1):
-        super().__init__()
-        self.lstm = nn.LSTM(input_size, hidden_size, num_layers, batch_first=True)
-        self.fc = nn.Linear(hidden_size, len(outputs))
-    
-    def forward(self, x):
-        out, _ = self.lstm(x)
-        return self.fc(out[:, -1, :])
+from model.lstm import MultiOutputLSTM
     
 def model_save(model):
     model_path = "../models/lstm_temperature.pth"
@@ -69,7 +60,7 @@ if __name__ == "__main__":
     train_loader = DataLoader(TensorDataset(X_train_tensor, y_train_tensor), batch_size=64, shuffle=True)
     val_loader = DataLoader(TensorDataset(X_val_tensor, y_val_tensor), batch_size=64)
 
-    model = MultiOutputLSTM().to(device)
+    model = MultiOutputLSTM(outputs).to(device)
     criterion = nn.MSELoss()
     optimizer = torch.optim.Adam(model.parameters(), lr=0.001)
 
