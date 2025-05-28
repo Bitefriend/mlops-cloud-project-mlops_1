@@ -11,6 +11,7 @@ from sklearn.preprocessing import MinMaxScaler
 
 
 from modeling.src.model.lstm import MultiOutputLSTM
+from modeling.src.postprocess.postprocess import write_db, read_db
 
 def temperature_to_df(results, outputs):
     return pd.DataFrame(

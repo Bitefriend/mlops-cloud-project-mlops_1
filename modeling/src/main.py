@@ -14,11 +14,10 @@ import torch
 import fire
 
 from modeling.src.inference.inference import (
-    init_model, inference, temperature_to_df, write_db, PM_to_df, get_scalers, get_outputs
+    init_model, inference, temperature_to_df, PM_to_df, get_scalers, get_outputs
 )
-from modeling.src.train.train import (
-    train
-)
+from modeling.src.train.train import train
+from modeling.src.postprocess.postprocess import write_db, read_db
 
 WINDOW_SIZE = 30
 
