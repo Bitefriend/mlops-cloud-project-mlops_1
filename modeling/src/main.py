@@ -43,17 +43,21 @@ def run_inference_temperature(data_root_path, model_root_path, model, scaler, ou
     fake_test_data = np.random.normal(loc=15, scale=3, size=(WINDOW_SIZE, len(outputs)))
 
     results = inference(model, fake_test_data, scaler, outputs, device)    
-    temperature_df = temperature_to_df(results, outputs)
-    print(temperature_df)
-    write_db(temperature_df, "mlops", "temperature")
+    # temperature_df = temperature_to_df(results, outputs)
+    # print(temperature_df)
+
+    # write_db(temperature_df, "mlops", "temperature")
+    return results
 
 def run_inference_PM(data_root_path, model_root_path, model, scaler, outputs, device):
     fake_test_data = np.random.normal(loc=15, scale=3, size=(WINDOW_SIZE, len(outputs)))
 
     results = inference(model, fake_test_data, scaler, outputs, device)    
-    PM_df = PM_to_df(results, outputs)
-    print(PM_df)
-    write_db(PM_df, "mlops", "PM")
+    # PM_df = PM_to_df(results, outputs)
+    # print(PM_df)
+
+    # write_db(PM_df, "mlops", "PM")
+    return results
 
 def run_inference(data_root_path, model_root_path, batch_size=64):
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -63,8 +67,9 @@ def run_inference(data_root_path, model_root_path, batch_size=64):
     scaler_temperature, scaler_PM = get_scalers(data_root_path)
     outputs_temperature, outputs_PM = get_outputs()
 
-    run_inference_temperature(data_root_path, model_root_path, model_temperature, scaler_temperature, outputs_temperature, device)
-    run_inference_PM(data_root_path, model_root_path, model_PM, scaler_PM, outputs_PM, device)
+    temperature_results = run_inference_temperature(data_root_path, model_root_path, model_temperature, scaler_temperature, outputs_temperature, device)
+    PM_results = run_inference_PM(data_root_path, model_root_path, model_PM, scaler_PM, outputs_PM, device)
+    return temperature_results, PM_results
 
 def main(run_mode, data_root_path, model_root_path):
     load_dotenv()
@@ -72,7 +77,8 @@ def main(run_mode, data_root_path, model_root_path):
     if run_mode == "train":
         run_train(data_root_path, model_root_path)
     elif run_mode == "inference":
-        run_inference(data_root_path, model_root_path)
+        temperature_results, PM_results = run_inference(data_root_path, model_root_path)
+        print(temperature_results, PM_results)
 
 if __name__ == '__main__':
     fire.Fire(main)

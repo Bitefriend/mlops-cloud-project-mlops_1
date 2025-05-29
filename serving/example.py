@@ -15,7 +15,8 @@ def main(run_mode, data_root_path, model_root_path):
     if run_mode == "train":
         run_train(data_root_path, model_root_path)
     elif run_mode == "inference":
-        run_inference(data_root_path, model_root_path)
+        temperature_results, PM_results = run_inference(data_root_path, model_root_path)
+        print(temperature_results, PM_results)
 
 if __name__ == '__main__':
 
