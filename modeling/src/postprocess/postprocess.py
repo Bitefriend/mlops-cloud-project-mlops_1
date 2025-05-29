@@ -2,16 +2,27 @@ import os
 
 import pandas as pd
 from sqlalchemy import create_engine, text
+from sqlalchemy.exc import SQLAlchemyError
 
 def get_engine(db_name):
-    engine = create_engine(url=(
-        f"mysql+mysqldb://"
-        f"{os.environ.get('DB_USER')}:"
-        f"{os.environ.get('DB_PASSWORD')}@"
-        f"{os.environ.get('DB_HOST')}:"
-        f"{os.environ.get('DB_PORT')}/"
-        f"{db_name}"))
-    return engine
+    try:
+        user = os.environ.get('DB_USER')
+        password = os.environ.get('DB_PASSWORD')
+        host = os.environ.get('DB_HOST')
+        port = os.environ.get('DB_PORT')
+
+        if not all([user, password, host, port]):
+            raise ValueError("One or more required DB environment variables are missing.")
+        url = f"mysql+mysqldb://{user}:{password}@{host}:{port}/{db_name}"
+        engine = create_engine(url)
+        return engine
+
+    except ValueError as ve:
+        print(f"[ENV ERROR] {ve}")
+    except SQLAlchemyError as e:
+        print(f"[SQLAlchemy ERROR] Failed to create engine: {e}")
+    except Exception as e:
+        print(f"[GENERAL ERROR] Unexpected error: {e}")
 
 def write_db(data: pd.DataFrame, db_name, table_name):
     engine = get_engine(db_name)
