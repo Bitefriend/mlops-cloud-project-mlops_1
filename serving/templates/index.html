@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>날씨 및 미세먼지 예측 결과</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 2rem; background: #f9f9f9; }
+        h1 { color: #333; }
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            background: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        button:hover { background: #45a049; }
+        pre {
+            background: #fff;
+            border: 1px solid #ddd;
+            padding: 1rem;
+            margin-top: 1rem;
+            border-radius: 5px;
+            white-space: pre-wrap;
+        }
+    </style>
+</head>
+<body>
+    <h1>오늘의 예측 결과</h1>
+    <button onclick="getPrediction()">예측 요청하기</button>
+    <pre id="result">(예측 결과가 여기에 표시됩니다)</pre>
+
+    <script>
+        async function getPrediction() {
+            try {
+                const res = await fetch("/predict");
+                if (!res.ok) throw new Error("API 호출 실패");
+                const data = await res.json();
+                document.getElementById("result").innerText = JSON.stringify(data, null, 2);
+            } catch (err) {
+                document.getElementById("result").innerText = "[에러] " + err.message;
+            }
+        }
+    </script>
+</body>
+</html>
